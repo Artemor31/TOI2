@@ -46,8 +46,8 @@ namespace TOI2
             "ью", "ю", "ия", "ья", "я"
         };
 
-        public static string[] Superlative = new string[] { "ейш", "ейше" };
-        public static string[] Derivational = new string[] { "ост", "ость" };
+        public static string[] Superlative = new string[] { "ейше", "ейш" };
+        public static string[] Derivational = new string[] { "ость", "ост" };
 
         public static string[] Adjectival;
 
@@ -55,7 +55,6 @@ namespace TOI2
         public static string R1;
         public static string R2;
         public static string Word;
-        static byte LenghtOfEnding = 0;
 
         static void Main(string[] args)
         {
@@ -69,39 +68,168 @@ namespace TOI2
             RV = RVFind(Word);
             Console.WriteLine(RV);
 
+            // STEP 1
+            bool end2 = false;
+            bool end1 = false;
+
+            if (!DeletingLoops(5, end1, end2, PerfectiveGerund1, PerfectiveGerund2))
+            {
+                if (!DeletingLoops(2, end1, Reflexive))
+                {
+                    if (!AjectivesComparition(ref RV))
+                    {
+                        if (!DeletingLoops(3, end1, Adjective))
+                        {
+                            if (!DeletingLoops(4, end1, end2, Verb1, Verb2))
+                            {
+                                if (!DeletingLoops(4, end1, Noun)) { }
+                            }
+                        }
+                    }
+                }
+            }
+            // STEP 2
+            if (RV.EndsWith('и'))
+            {
+                RV = RV.Remove(RV.Length - 1);
+            }
+
+            // STEP 3
+
             R1 = R1Find(Word);
             Console.WriteLine(R1);
 
             R2 = R1Find(R1);
             Console.WriteLine(R2);
 
-            // STEP 1
+            if (R2.EndsWith(Derivational[0]))
+                RV = RV.Remove(RV.Length - Derivational[0].Length);
+            else if (R2.EndsWith(Derivational[1]))
+                RV = RV.Remove(RV.Length - Derivational[1].Length);
 
+            // STEP 4
 
+            if (RV.EndsWith("нн"))
+                RV = RV.Remove(RV.Length - 1);
 
+            if (R2.EndsWith(Superlative[0]))
+            {
+                RV = RV.Remove(RV.Length - Superlative[0].Length);
+            }
+            else if (R2.EndsWith(Superlative[1]))
+            {
+                RV = RV.Remove(RV.Length - Superlative[1].Length);
+            }
 
+            if (RV.EndsWith("нн"))
+                RV = RV.Remove(RV.Length - 1);
+
+            if (RV.EndsWith('ь'))
+                RV = RV.Remove(RV.Length - 1);
+
+            Console.WriteLine("финал " + RV);
             Console.ReadKey();
         }
 
-        static void Step1(string rv)
+
+        static bool AjectivesComparition(ref string RV)
         {
-            // вопрос впорос вопрос вопрос вопрос вопрос ввопрос вопрос вопрос ворпос вопро вопрос вопрос вопрос вопрос вопрос вопрос вопрос
-            bool ThereIsLettersA = rv[rv.Length - 4] == 'а' || rv[rv.Length - 4] == 'и';
-
-            if (rv.Length == 3)
-                ThereIsLettersA = true;
-
-            if ( (rv.Length > 3 && ThereIsLettersA) || ( rv.Length == 3) )
+            for (int i = 0; i < Participle1.Length; i++)
             {
-                string s1 = rv.Substring(rv.Length - 3);
-                for (int i = 0; i < PerfectiveGerund1.Length; i++)
+                for (int j = 0; j < Adjective.Length; j++)
                 {
-                    if (PerfectiveGerund1[i].Length == 3 && ThereIsLettersA)
-                    {
+                    string CreatedSyffix = Participle1[i] + Adjective[j];
 
+                    if (RV.Length > CreatedSyffix.Length)
+                    {
+                        string OurSuffix = RV.Substring(RV.Length - CreatedSyffix.Length);
+                        string LetterBeforeSyf = RV.Substring(RV.Length - CreatedSyffix.Length - 1, 1);
+
+                        if (OurSuffix == CreatedSyffix && (LetterBeforeSyf == "а" || LetterBeforeSyf == "я"))
+                        {
+                            RV = RV.Remove(RV.Length - CreatedSyffix.Length);
+                            return true;
+                        }
                     }
                 }
             }
+            for (int i = 0; i < Participle2.Length; i++)
+            {
+                for (int j = 0; j < Adjective.Length; j++)
+                {
+                    string CreatedSyffix = Participle2[i] + Adjective[j];
+                    if (RV.Length >= CreatedSyffix.Length)
+                    {
+                        string OurSuffix = RV.Substring(RV.Length - CreatedSyffix.Length);
+
+                        if (OurSuffix == CreatedSyffix)
+                        {
+                            RV = RV.Remove(RV.Length - CreatedSyffix.Length);
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        static bool DeletingLoops(int Loops, bool end1, string[] ArrayOne)
+        {
+            while (Loops > 0 || end1)
+            {
+                end1 = Step1(ref RV, Loops, true, ArrayOne);
+                Loops--;
+            }
+            return end1;
+        }
+        static bool DeletingLoops(int Loops, bool end1, bool end2, string[] ArrayOne, string[] ArrayTwo)
+        {
+            while (Loops > 0 || end1 || end2)
+            {
+                end1 = Step1(ref RV, Loops, true, ArrayOne);
+                end2 = Step1(ref RV, Loops, false, ArrayTwo);
+                Loops--;
+            }
+            return (end1 || end2);
+        }
+
+
+        static bool Step1(ref string rv, int SuffixLenght, bool InFirstGroup, string[] Suffixes)
+        {
+            bool ThereIsLettersA = false;
+            if (InFirstGroup)
+                ThereIsLettersA = CHeckForLettersAorYa(rv, SuffixLenght);            
+            else if (rv.Length >= SuffixLenght)
+                ThereIsLettersA = true;
+
+
+            if (rv.Length >= SuffixLenght && ThereIsLettersA)
+            {
+                string rvSyffix = rv.Substring(rv.Length - SuffixLenght);
+
+                for (int i = 0; i < Suffixes.Length; i++)
+                {
+                    if (Suffixes[i].Length == SuffixLenght && Suffixes[i] == rvSyffix)
+                    {
+                        rv = rv.Remove(rv.Length - SuffixLenght);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        static bool CHeckForLettersAorYa(string rv, int SuffixLenght)
+        {
+            bool ThereIsLettersA = false;
+
+            if (rv.Length < SuffixLenght)
+                return false;
+            else if (rv.Length > SuffixLenght)
+                ThereIsLettersA = rv[rv.Length - SuffixLenght - 1] == 'а' || rv[(rv.Length - SuffixLenght) - 1] == 'я';
+
+            return ThereIsLettersA;
         }
         static bool CheckForLetters(string _word)
         {
