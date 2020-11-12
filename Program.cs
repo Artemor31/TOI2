@@ -77,13 +77,15 @@ namespace TOI2
             bool end2 = false;
             bool end1 = false;
 
-            DeletingLoops(5, end1, end2, PerfectiveGerund1, PerfectiveGerund2);
-
-            if (!DeletingLoops(2, end1, Reflexive))
+            if (!DeletingLoops(5, end1, end2, PerfectiveGerund1, PerfectiveGerund2))
             {
-                if (!AjectivesComparition(ref RV))
+                DeletingLoops(2, end1, Reflexive);
+                DeletingLoops(3, end1, Adjective);
+
+                //ajec
+                if (!DeletingLoops(3, end1, Adjective))
                 {
-                    if (!DeletingLoops(3, end1, Adjective))
+                    if (!DeletingLoops(3, end1, end2, Participle1, Participle2))
                     {
                         if (!DeletingLoops(4, end1, end2, Verb1, Verb2))
                         {
@@ -91,6 +93,7 @@ namespace TOI2
                         }
                     }
                 }
+                
             }
 
             // STEP 2
@@ -144,10 +147,10 @@ namespace TOI2
             Console.WriteLine("финал " + RV);
 
             // FileWork
-            var file = File.Create("C:\\Users\\bogun\\Desktop\\OutputTOI2.txt");
+            var file = File.Create("C:\\Users\\artem\\Desktop\\OutputTOI2.txt");
             file.Dispose();
 
-            using (StreamReader sr = new StreamReader("C:\\Users\\bogun\\Desktop\\test.txt"))
+            using (StreamReader sr = new StreamReader("C:\\Users\\artem\\Desktop\\Dictionary.txt"))
             {
                 while (!sr.EndOfStream)
                 {
@@ -164,28 +167,17 @@ namespace TOI2
                     }
                 }
             }
-
-
-
             Console.ReadKey();
-
-
-
-
-
         }
 
         static void AppendOutputFile(string _word)
         {
-            using (StreamWriter sw = new StreamWriter("C:\\Users\\bogun\\Desktop\\OutputTOI2.txt"))
+            using (StreamWriter sw = new StreamWriter("C:\\Users\\artem\\Desktop\\OutputTOI2.txt"))
             {
                 sw.WriteLine(_word);
-                sw.Close();
                 sw.Dispose();
             }
         }
-
-
         static bool AjectivesComparition(ref string RV)
         {
             for (int i = 0; i < Participle1.Length; i++)
@@ -230,22 +222,28 @@ namespace TOI2
 
         static bool DeletingLoops(int Loops, bool end1, string[] ArrayOne)
         {
-            while (Loops > 0 || end1)
+            for (int i = Loops; i > 0; i--)
             {
-                end1 = Step1(ref RV, Loops, true, ArrayOne);
+                end1 = Step1(ref RV, Loops, false, ArrayOne);
                 Loops--;
+
+                if (end1)
+                    return end1;
             }
             return end1;
         }
         static bool DeletingLoops(int Loops, bool end1, bool end2, string[] ArrayOne, string[] ArrayTwo)
         {
-            while (Loops > 0 || end1 || end2)
+            for (int i = Loops; i > 0; i--)
             {
                 end1 = Step1(ref RV, Loops, true, ArrayOne);
                 end2 = Step1(ref RV, Loops, false, ArrayTwo);
                 Loops--;
+
+                if (end1 || end2)
+                    return end1 || end2;
             }
-            return (end1 || end2);
+            return end1 || end2;
         }
 
 
