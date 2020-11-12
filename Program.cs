@@ -92,7 +92,7 @@ namespace TOI2
                     }
                 }
             }
-            
+
             // STEP 2
             if (RV.EndsWith('и'))
             {
@@ -106,12 +106,18 @@ namespace TOI2
 
             R2 = R1Find(R1);
             Console.WriteLine(R2);
-
-            if (R2.EndsWith(Derivational[0]))
+            if (R2.Contains(Derivational[0]) && RV.Contains(Derivational[0]))
+            {
+                char[] derivotional = Derivational[0].ToCharArray();
+                int index = RV.IndexOfAny(derivotional);
                 RV = RV.Remove(RV.Length - Derivational[0].Length);
-            else if (R2.EndsWith(Derivational[1]))
-                RV = RV.Remove(RV.Length - Derivational[1].Length);
-
+            }
+            else if (R2.Contains(Derivational[0]) && RV.Contains(Derivational[0]))
+            {
+                char[] derivotional = Derivational[0].ToCharArray();
+                int index = RV.IndexOfAny(derivotional);
+                RV = RV.Remove(RV.Length - Derivational[0].Length);
+            }
             // STEP 4
 
             if (RV.EndsWith("нн"))
@@ -138,15 +144,16 @@ namespace TOI2
             Console.WriteLine("финал " + RV);
 
             // FileWork
-            File.Create("C:\\Users\\artem\\Desktop\\OutputTOI2.txt");
+            var file = File.Create("C:\\Users\\bogun\\Desktop\\OutputTOI2.txt");
+            file.Dispose();
 
-            using (StreamReader sr = new StreamReader("C:\\Users\\artem\\Desktop\\Dictionary.txt"))
+            using (StreamReader sr = new StreamReader("C:\\Users\\bogun\\Desktop\\test.txt"))
             {
                 while (!sr.EndOfStream)
                 {
                     char ch = (char)sr.Read();
                     string NextWord = ch.ToString();
-                    while (ch != ' ' && ch != ',' && ch != '.')
+                    while (ch != ' ' && ch != ',' && ch != '.' && !sr.EndOfStream) 
                     {
                         ch = (char)sr.Read();
                         NextWord += ch;
@@ -163,14 +170,14 @@ namespace TOI2
             Console.ReadKey();
 
 
-            
+
 
 
         }
 
         static void AppendOutputFile(string _word)
         {
-            using (StreamWriter sw = new StreamWriter(path: "C:\\Users\\artem\\Desktop\\OutputTOI2.txt"))
+            using (StreamWriter sw = new StreamWriter("C:\\Users\\bogun\\Desktop\\OutputTOI2.txt"))
             {
                 sw.WriteLine(_word);
                 sw.Close();
@@ -246,7 +253,7 @@ namespace TOI2
         {
             bool ThereIsLettersA = false;
             if (InFirstGroup)
-                ThereIsLettersA = CHeckForLettersAorYa(rv, SuffixLenght);            
+                ThereIsLettersA = CHeckForLettersAorYa(rv, SuffixLenght);
             else if (rv.Length >= SuffixLenght)
                 ThereIsLettersA = true;
 
@@ -311,7 +318,7 @@ namespace TOI2
             {
                 for (int j = 0; j < Letters.Length; j++)
                 {
-                    if (_word[i] == Letters[j] && (_word.Length > i + 2) && NotInLetters(_word[i+1]) )
+                    if (_word[i] == Letters[j] && (_word.Length > i + 2) && NotInLetters(_word[i + 1]))
                     {
                         return _word.Substring(i + 2);
                     }
