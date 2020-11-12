@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.IO;
 
 namespace TOI2
 {
@@ -55,9 +56,13 @@ namespace TOI2
         public static string R1;
         public static string R2;
         public static string Word;
+        public static string Prefix;
 
         static void Main(string[] args)
         {
+
+
+
             Console.WriteLine("Введите слово, вместо <ё> используйте <е>: ");
             Word = Console.ReadLine();
             if (!CheckForLetters(Word))
@@ -65,29 +70,29 @@ namespace TOI2
                 Console.WriteLine("В слове нет гласных");
                 return;
             }
-            RV = RVFind(Word);
+            RV = RVFind(Word, ref Prefix);
             Console.WriteLine(RV);
 
             // STEP 1
             bool end2 = false;
             bool end1 = false;
 
-            if (!DeletingLoops(5, end1, end2, PerfectiveGerund1, PerfectiveGerund2))
+            DeletingLoops(5, end1, end2, PerfectiveGerund1, PerfectiveGerund2);
+
+            if (!DeletingLoops(2, end1, Reflexive))
             {
-                if (!DeletingLoops(2, end1, Reflexive))
+                if (!AjectivesComparition(ref RV))
                 {
-                    if (!AjectivesComparition(ref RV))
+                    if (!DeletingLoops(3, end1, Adjective))
                     {
-                        if (!DeletingLoops(3, end1, Adjective))
+                        if (!DeletingLoops(4, end1, end2, Verb1, Verb2))
                         {
-                            if (!DeletingLoops(4, end1, end2, Verb1, Verb2))
-                            {
-                                if (!DeletingLoops(4, end1, Noun)) { }
-                            }
+                            if (!DeletingLoops(4, end1, Noun)) { }
                         }
                     }
                 }
             }
+            
             // STEP 2
             if (RV.EndsWith('и'))
             {
@@ -127,8 +132,50 @@ namespace TOI2
             if (RV.EndsWith('ь'))
                 RV = RV.Remove(RV.Length - 1);
 
+            RV = $"{Prefix}{RV}";
+
+
             Console.WriteLine("финал " + RV);
+
+            // FileWork
+            File.Create("C:\\Users\\artem\\Desktop\\OutputTOI2.txt");
+
+            using (StreamReader sr = new StreamReader("C:\\Users\\artem\\Desktop\\Dictionary.txt"))
+            {
+                while (!sr.EndOfStream)
+                {
+                    char ch = (char)sr.Read();
+                    string NextWord = ch.ToString();
+                    while (ch != ' ' && ch != ',' && ch != '.')
+                    {
+                        ch = (char)sr.Read();
+                        NextWord += ch;
+                    }
+                    if (NextWord.StartsWith(RV))
+                    {
+                        AppendOutputFile(NextWord);
+                    }
+                }
+            }
+
+
+
             Console.ReadKey();
+
+
+            
+
+
+        }
+
+        static void AppendOutputFile(string _word)
+        {
+            using (StreamWriter sw = new StreamWriter(path: "C:\\Users\\artem\\Desktop\\OutputTOI2.txt"))
+            {
+                sw.WriteLine(_word);
+                sw.Close();
+                sw.Dispose();
+            }
         }
 
 
@@ -243,7 +290,7 @@ namespace TOI2
             }
             return false;
         }
-        static string RVFind(string _word)
+        static string RVFind(string _word, ref string prefix)
         {
             for (int i = 0; i < _word.Length; i++)
             {
@@ -251,6 +298,7 @@ namespace TOI2
                 {
                     if (_word[i] == Letters[j] && (_word.Length > i + 1))
                     {
+                        prefix = _word.Substring(0, i + 1);
                         return _word.Substring(i + 1);
                     }
                 }
