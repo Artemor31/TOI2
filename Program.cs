@@ -80,10 +80,17 @@ namespace TOI2
             if (!DeletingLoops(5, end1, end2, PerfectiveGerund1, PerfectiveGerund2))
             {
                 DeletingLoops(2, end1, Reflexive);
-                DeletingLoops(3, end1, Adjective);
 
-                //ajec
-                if (!DeletingLoops(3, end1, Adjective))
+                bool ajRet = false;
+                int ajLoops = 6;
+
+                while (ajLoops > 0 && !ajRet)
+                {
+                    ajRet = AjectivesComparition(ref RV,  ajLoops);
+                    ajLoops--;
+                }
+
+                if (!DeletingLoops(3, end1, Adjective) && !ajRet)
                 {
                     if (!DeletingLoops(3, end1, end2, Participle1, Participle2))
                     {
@@ -92,8 +99,7 @@ namespace TOI2
                             if (!DeletingLoops(4, end1, Noun)) { }
                         }
                     }
-                }
-                
+                }                
             }
 
             // STEP 2
@@ -103,7 +109,6 @@ namespace TOI2
             }
 
             // STEP 3
-
             R1 = R1Find(Word);
             Console.WriteLine(R1);
 
@@ -121,8 +126,8 @@ namespace TOI2
                 int index = RV.IndexOfAny(derivotional);
                 RV = RV.Remove(RV.Length - Derivational[0].Length);
             }
-            // STEP 4
 
+            // STEP 4
             if (RV.EndsWith("нн"))
                 RV = RV.Remove(RV.Length - 1);
 
@@ -178,7 +183,7 @@ namespace TOI2
                 sw.Dispose();
             }
         }
-        static bool AjectivesComparition(ref string RV)
+        static bool AjectivesComparition(ref string RV, int LengthOfCreatedSuffix)
         {
             for (int i = 0; i < Participle1.Length; i++)
             {
@@ -186,7 +191,7 @@ namespace TOI2
                 {
                     string CreatedSyffix = Participle1[i] + Adjective[j];
 
-                    if (RV.Length > CreatedSyffix.Length)
+                    if (RV.Length > CreatedSyffix.Length && CreatedSyffix.Length == LengthOfCreatedSuffix)
                     {
                         string OurSuffix = RV.Substring(RV.Length - CreatedSyffix.Length);
                         string LetterBeforeSyf = RV.Substring(RV.Length - CreatedSyffix.Length - 1, 1);
@@ -204,7 +209,7 @@ namespace TOI2
                 for (int j = 0; j < Adjective.Length; j++)
                 {
                     string CreatedSyffix = Participle2[i] + Adjective[j];
-                    if (RV.Length >= CreatedSyffix.Length)
+                    if (RV.Length >= CreatedSyffix.Length && CreatedSyffix.Length == LengthOfCreatedSuffix)
                     {
                         string OurSuffix = RV.Substring(RV.Length - CreatedSyffix.Length);
 
@@ -216,7 +221,6 @@ namespace TOI2
                     }
                 }
             }
-
             return false;
         }
 
